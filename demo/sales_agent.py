@@ -4,8 +4,8 @@ from autogen_agentchat.messages import HandoffMessage, TextMessage
 from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.models import ChatCompletionClient
 from messages import AdvisorMessage, OrderMessage, TriageMessage, UserMessage
-from rich import print
 from tools import Tools
+from utils import print_core, print_route
 
 
 class SalesAgent(RoutedAgent):
@@ -14,7 +14,8 @@ class SalesAgent(RoutedAgent):
         super().__init__(
             description="An agent that specializes in handling requests related to car orders.",
         )
-        print(f"[bold gray]({self.id}) Initialized[/bold gray]")
+
+        print_core(f"Agent ({self.id}) initialized")
 
         self._agent = AssistantAgent(
             name="order_management_agent",
@@ -25,7 +26,7 @@ class SalesAgent(RoutedAgent):
                 Tools.delete_order,
                 Tools.get_order,
                 Tools.get_orders,
-                Tools.inform_user_about_order_status,
+                Tools.create_status_notification,
             ],
             system_message=f""""
             You are a specialized assistant responsible for handling conversations related to car orders.
@@ -40,12 +41,14 @@ class SalesAgent(RoutedAgent):
             
             Before creating the order, ask the user for a confirmation of the order details and ask to confirm by typing "yes" or "no".
             If the user confirms, proceed with the order creation.
-            If the user does not confirm, ask them if they would like to provide any additional information or cancel the order.                              
+            If the user does not confirm, ask them if they would like to provide any additional information or cancel the order.
+            After an order is created, ensure that a status notification is also created.
 
             Deleting an Order:
 
             Before proceeding with a deletion, always ask the user for a final confirmation.
-            Ensure that the user explicitly confirms that they want to delete the order.                     
+            Ensure that the user explicitly confirms that they want to delete the order. 
+            After an order is deleted, ensure that a status notification is also created.                    
 
             Asking About Existing Orders:
 
@@ -85,25 +88,18 @@ class SalesAgent(RoutedAgent):
     async def handle_request(
         self, message: UserMessage | AdvisorMessage | TriageMessage, ctx: MessageContext
     ) -> None:
-        print(
-            f"[bold gray]({ctx.sender})[/bold gray]->({self.id})[bold yellow] Received: {message.content}[/bold yellow]"
-        )
+        print_route(ctx.sender, self.id, message.content)
 
         response = await self._agent.on_messages(
             [TextMessage(content=message.content, source="user")],
             ctx.cancellation_token,
         )
 
-        # print(f"[bold yellow]({self.id}) Response: {response}[/bold yellow]")
-
-        # If agent request handoff, send the message to the target agent
         if isinstance(response.chat_message, HandoffMessage):
             match response.chat_message.target:
                 case "advisor_agent":
                     await self.send_message(
-                        TriageMessage(
-                            content=message.content
-                        ),  # we forward the original message
+                        TriageMessage(content=message.content),
                         AgentId(response.chat_message.target, self.id.key),
                     )
                 case _:

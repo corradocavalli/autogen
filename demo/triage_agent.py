@@ -4,7 +4,7 @@ from autogen_agentchat.messages import HandoffMessage, TextMessage
 from autogen_core import AgentId, MessageContext, RoutedAgent, TopicId, message_handler
 from autogen_core.models import ChatCompletionClient
 from messages import OrderUpdateMessage, TriageMessage, UserMessage
-from rich import print
+from utils import print_core, print_route
 
 
 class TriageAgent(RoutedAgent):
@@ -13,7 +13,8 @@ class TriageAgent(RoutedAgent):
         super().__init__(
             description="An agent that specializes in handling user requests and handoff them to the proper agent."
         )
-        print(f"[bold gray]({self.id}) Initialized[/bold gray]")
+
+        print_core(f"Agent ({self.id}) initialized")
 
         self._agent = AssistantAgent(
             name="triage_agent",
@@ -42,18 +43,16 @@ class TriageAgent(RoutedAgent):
 
     @message_handler()
     async def handle_request(self, message: UserMessage, ctx: MessageContext) -> None:
-        print(
-            f"[bold gray]({ctx.sender})[/bold gray]->({self.id})[bold yellow] Received: {message.content}[/bold yellow]"
-        )
+        print_route(ctx.sender, self.id, message.content)
 
         response = await self._agent.on_messages(
             [TextMessage(content=message.content, source="user")],
             ctx.cancellation_token,
         )
 
-        print(
-            f"[bold gray]({ctx.sender})[/bold gray]->[bold yellow]({self.id}) Received: {response}[/bold yellow]"
-        )
+        # print(
+        #     f"[bold gray]({ctx.sender})[/bold gray]->[bold yellow]({self.id}) Received: {response}[/bold yellow]"
+        # )
 
         # If agent request handoff, forwards the message to the target agent
         if isinstance(response.chat_message, HandoffMessage):

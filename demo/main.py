@@ -4,18 +4,19 @@ sys.path.append("..")
 import asyncio
 
 from advisor_agent import AdvisorAgent
+from after_sales_agent import AfterSalesAgent
 from autogen_core import AgentId, SingleThreadedAgentRuntime, TopicId
 from autogen_core.models import ChatCompletionClient
 from datastore import CarDB
 from handlers import UserTerminationHandler
-from messages import OrderUpdateMessage, SessionStartMessage
+from messages import SessionStartMessage
 from rich import print
+from sales_agent import SalesAgent
 from tools import Tools
 from triage_agent import TriageAgent
 from user_agent import UserAgent
+from utils import print_core
 
-from cardream_demo.after_sales_agent import AfterSalesAgent
-from cardream_demo.sales_agent import SalesAgent
 from model_clients.azure import get_model
 
 
@@ -59,7 +60,7 @@ async def main():
     # Initializes the database if it doesn't exist
     CarDB().init()
 
-    print("[bold magenta italic]Starting the runtime...[/bold magenta italic]")
+    print_core("Initializing the runtime...")
 
     # Create the runtime with a termination handler
     # This handler will handle the termination of the runtime
@@ -84,7 +85,7 @@ async def main():
 
     # Close the runtime freeing up resources
     await runtime.close()
-    print("[bold magenta italic]Runtime stopped[/bold magenta italic]")
+    print_core("Runtime stopped.")
 
 
 if __name__ == "__main__":

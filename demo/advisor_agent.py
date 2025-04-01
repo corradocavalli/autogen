@@ -5,9 +5,9 @@ from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.models import ChatCompletionClient
 from datastore import CarIdCache
 from messages import AdvisorMessage, TriageMessage, UserMessage
-from rich import print
 from tools import Tools
 from typing_extensions import Annotated
+from utils import print_core, print_route
 
 
 class AdvisorAgent(RoutedAgent):
@@ -18,7 +18,7 @@ class AdvisorAgent(RoutedAgent):
         super().__init__(
             description="An agent that specializes in advising a user in selecting the right car.",
         )
-        print(f"[bold gray]({self.id}) Initialized[/bold gray]")
+        print_core(f"Agent ({self.id}) initialized")
 
         self._agent = AssistantAgent(
             name="advisor_agent",
@@ -73,17 +73,12 @@ class AdvisorAgent(RoutedAgent):
     async def handle_request(
         self, message: TriageMessage | UserMessage, ctx: MessageContext
     ) -> None:
-        print(
-            f"[bold gray]({ctx.sender})[/bold gray]->({self.id})[bold yellow] Received: {message.content}[/bold yellow]"
-        )
+
+        print_route(ctx.sender, self.id, message.content)
 
         response = await self._agent.on_messages(
             [TextMessage(content=message.content, source="user")],
             ctx.cancellation_token,
-        )
-
-        print(
-            f"[bold bright orange]({self.id}) Response: {response}[/bold bright orange]"
         )
 
         if isinstance(response.chat_message, HandoffMessage):
@@ -94,9 +89,7 @@ class AdvisorAgent(RoutedAgent):
                             str(self.id), -1
                         )  # not very safe, but for demo purposes
                     )
-                    print(
-                        f"[bold bright orange]({self.id}) {order_agent_instructions}[/bold bright orange]"
-                    )
+
                     await self.send_message(
                         AdvisorMessage(content=order_agent_instructions),
                         AgentId(response.chat_message.target, self.id.key),
@@ -107,7 +100,6 @@ class AdvisorAgent(RoutedAgent):
                         AgentId(response.chat_message.target, self.id.key),
                     )
         else:
-            # If agent does not request handoff, send the response to the user
             await self.send_message(
                 AdvisorMessage(content=response.chat_message.content),
                 AgentId("user_agent", self.id.key),

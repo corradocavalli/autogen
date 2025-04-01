@@ -1,17 +1,10 @@
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.messages import TextMessage
-from autogen_core import (
-    AgentId,
-    MessageContext,
-    RoutedAgent,
-    message_handler,
-    type_subscription,
-)
+from autogen_core import MessageContext, RoutedAgent, message_handler, type_subscription
 from autogen_core.models import ChatCompletionClient
 from messages import OrderUpdateMessage
-from pydantic import BaseModel
-from rich import print
 from tools import Tools
+from utils import print_assistant, print_core, print_route
 
 
 @type_subscription(topic_type="order_update")
@@ -21,7 +14,8 @@ class AfterSalesAgent(RoutedAgent):
         super().__init__(
             description="An agent that specializes in handling after-sales operations.",
         )
-        print(f"[bold gray]({self.id}) Initialized[/bold gray]")
+
+        print_core(f"Agent ({self.id}) initialized")
 
         self._agent = AssistantAgent(
             name="communication_agent",
@@ -48,9 +42,8 @@ class AfterSalesAgent(RoutedAgent):
     async def handle_topic(
         self, message: OrderUpdateMessage, ctx: MessageContext
     ) -> None:
-        print(
-            f"[bold gray]({ctx.sender})[/bold gray]->({self.id})[bold yellow] Received: {message.order_id}-{message.status}[/bold yellow]"
-        )
+
+        print_route(ctx.sender, self.id, f"{message.order_id}-{message.status}")
 
         query = f"The following order has been updated: {message.order_id}"
         response = await self._agent.on_messages(
@@ -58,6 +51,4 @@ class AfterSalesAgent(RoutedAgent):
             ctx.cancellation_token,
         )
 
-        print(
-            f"[bold cyan italic]({self.id}) e-email: {response.chat_message.content}[/bold cyan italic]"
-        )
+        print_assistant(ctx.sender, self.id, f"email:\n{response.chat_message.content}")

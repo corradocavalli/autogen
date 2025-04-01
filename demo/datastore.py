@@ -1,11 +1,10 @@
 import csv
 import datetime
-import os
 import sqlite3
 from dataclasses import dataclass
 from typing import Any, List, Optional
 
-from rich import print
+from utils import print_error, print_info
 
 
 @dataclass
@@ -46,24 +45,21 @@ class CarDB:
     def init(self):
         cursor = self.conn.cursor()
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()  # Fixed typo: changed `ttables` to `tables`
+        tables = cursor.fetchall()
         if len(tables) == 0:
             try:
-                print(
-                    "[bold gray italic]Database does not exist, creating...[/bold gray italic]"
-                )
+                print_info("Database does not exist, creating...")
                 self._create_tables()
+                print_info("Importing cars...")
                 self._import_cars("data/cars.csv")
-                print(
-                    "[bold gray italic]Database initialization completed![/bold gray italic]"
-                )
+                print_info("Database initialized successfully!")
             except Exception as e:
-                print(f"[bold red]Error initializing database: {e}[/bold red]")
+                print_error(f"Error initializing database: {e}")
 
     def _create_tables(self):
         """Creates the Cars and Orders tables if they don't exist."""
 
-        print("[bold gray italic]Creating tables...[/bold gray italic]")
+        print_info("Creating tables...")
 
         # Create Cars table
         create_cars_table_sql = """
@@ -105,11 +101,7 @@ class CarDB:
         Updates the associated car's is_available field to False.
         Returns the newly created Order object.
         """
-        print(
-            f"[bold green italic]CREATING order...{car_id}-{customer_name}-{customer_email}[/bold green italic]"
-        )
 
-        # Retrieve the car object
         car = self.get_car(car_id)
         if not car:
             raise ValueError(f"Car with id {car_id} not found.")
@@ -255,8 +247,6 @@ class CarDB:
         Reads cars data from a CSV file and inserts them into the Cars table.
         Assumes the CSV has columns: id, brand, year, price, color, mileage, fuel, model.
         """
-
-        print("[bold gray italic]Importing cars from csv file...[/bold gray italic]")
         with open(csv_file, newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             cars = []

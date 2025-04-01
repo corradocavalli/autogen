@@ -3,8 +3,8 @@ from typing import List
 from autogen_core import SingleThreadedAgentRuntime, TopicId
 from datastore import Car, CarDB, CarIdCache, Order
 from messages import OrderUpdateMessage
-from rich import print
 from typing_extensions import Annotated
+from utils import print_error, print_tool
 
 
 class Tools:
@@ -25,18 +25,14 @@ class Tools:
     ) -> List[Car]:
         """Use this tool you need to get the available cars"""
 
-        print(
-            f"[bold blue italic]'get_available_cars' invoked with: {brand}-{year}-{budget}[/bold blue italic]"
-        )
-
+        print_tool("get_available_cars", f"{brand}-{year}-{budget}")
         return Tools.db.find_cars(brand=brand, year=year, price=budget)
 
     @staticmethod
     async def get_car(id: Annotated[int, "The id of the car"]):
         """Use this tool to get a car info by its id"""
 
-        print(f"[bold blue italic]'get_car' invoked with: {id}[/bold blue italic]")
-
+        print_tool("get_car", f"{id}")
         return Tools.db.get_car(id)
 
     @staticmethod
@@ -47,9 +43,7 @@ class Tools:
         """
         Use this tool every time the user identifies a car they are interested in.
         """
-        print(
-            f"[bold blue italic]Tool cache_carId invoked: {agent_id}-{car_id}[/bold blue italic]"
-        )
+        print_tool("cache_carId", f"{agent_id}-{car_id}")
         CarIdCache.cache[agent_id] = car_id
 
     @staticmethod
@@ -63,16 +57,11 @@ class Tools:
     ]:
         """Use this tool to create a new order for a car"""
 
-        print(
-            f"[bold blue italic]'create_order' invoked with: {car_id}-{customer_name}-{customer_email}[/bold blue italic]"
-        )
-
+        print_tool("create_order", f"{car_id}-{customer_name}-{customer_email}")
         try:
-            order = Tools.db.create_order(car_id, customer_name, customer_email)
-            print("[bold blue italic]Order created successfully![/bold blue italic]")
-            return order
+            return Tools.db.create_order(car_id, customer_name, customer_email)
         except Exception as e:
-            print(f"[bold red]Error creating order: {e}[/bold red]")
+            print_error(f"Error creating order: {e}")
             return None
 
     @staticmethod
@@ -84,19 +73,16 @@ class Tools:
     ]:
         """Use this tool to delete an order"""
 
-        print(
-            f"[bold blue italic]'delete_order' invoked with: {order_id}[/bold blue italic]"
-        )
-
+        print_tool("delete_order", f"{order_id}")
         try:
             order = Tools.db.get_order(order_id)
             if order is None:
-                print(f"[bold red]Order {order} not found[/bold red]")
+                print_error(f"Order {order} not found")
                 return "Order not found!"
             Tools.db.delete_order(order_id)
             return True
         except Exception as e:
-            print(f"[bold red]Error deleting order: {e}[/bold red]")
+            print_error(f"Error deleting order: {e}")
             return "An error occurred while deleting the order."
 
     @staticmethod
@@ -108,19 +94,18 @@ class Tools:
     ]:
         """Use this tool to find an order by its id"""
 
-        print(
-            f"[bold blue italic]'get_order' invoked with: {order_id}[/bold blue italic]"
-        )
+        print_tool("get_order", f"{order_id}")
 
         try:
             order = Tools.db.get_order(order_id)
             if order is None:
-                print(f"[bold red]Order {order} not found[/bold red]")
-                return "Order not found!"
+                message = f"Order {order} not found"
+                print_error(message)
+                return message
             return order
         except Exception as e:
-            print(f"[bold red]Error getting order: {e}[/bold red]")
-            return f"An error occurred while getting the order: {order_id}"
+            print_error(f"Error getting order: {e}")
+            return "An error occurred while retrieving the order"
 
     @staticmethod
     async def lookup_order(
@@ -131,19 +116,17 @@ class Tools:
     ]:
         """Use this tool to find an order by its id"""
 
-        print(
-            f"[bold blue italic]'find_order' invoked with: {order_id}[/bold blue italic]"
-        )
-
+        print_tool("lookup_order", f"{order_id}")
         try:
             order = Tools.db.get_order(order_id, include_deleted=True)
             if order is None:
-                print(f"[bold red]Order {order} not found[/bold red]")
-                return "Order not found!"
+                message = f"Order {order} not found"
+                print_error(message)
+                return message
             return order
         except Exception as e:
-            print(f"[bold red]Error getting order: {e}[/bold red]")
-            return f"An error occurred while getting the order: {order_id}"
+            print_error(f"Error getting order: {e}")
+            return "An error occurred while retrieving the order"
 
     @staticmethod
     async def get_orders(
@@ -156,9 +139,7 @@ class Tools:
     ]:
         """Use this tool to find an the orders of a customer by their name"""
 
-        print(
-            f"[bold blue italic]'get_orders' invoked with: {customer_name}[/bold blue italic]"
-        )
+        print_tool("get_orders", f"{customer_name}")
 
         try:
             orders = Tools.db.get_orders_by_customer(customer_name)
@@ -166,11 +147,11 @@ class Tools:
                 return f"No orders found for {customer_name}!"
             return orders
         except Exception as e:
-            print(f"[bold red]Error getting customer orders: {e}[/bold red]")
-            return f"An error occurred while getting the orders for customer {customer_name}"
+            print_error(f"Error getting customer orders: {e}")
+            return "An error occurred while retrieving customer's orders"
 
     @staticmethod
-    async def inform_user_about_order_status(
+    async def create_status_notification(
         order_id: Annotated[
             str,
             "The id of the order to notify about",
@@ -180,13 +161,11 @@ class Tools:
             "The status of the order to notify about",
         ],
     ) -> Annotated[
-        bool, "True when notification was sent successfully, false otherwise"
+        bool, "True when notification was successfully created, false otherwise"
     ]:
-        """Use this tool to inform the user about an order update"""
+        """Use this tool to create a status notification when an order is created or deleted"""
 
-        print(
-            f"[bold blue italic]'notify_order_update' invoked with: {order_id}-{status}[/bold blue italic]"
-        )
+        print_tool("create_status_notification", f"{order_id}-{status}")
 
         await Tools.runtime.publish_message(
             OrderUpdateMessage(
@@ -195,6 +174,6 @@ class Tools:
             ),
             topic_id=TopicId(
                 type="order_update", source="default"
-            ),  # the communication agent is not tied to any specific session
+            ),  # the after_sales is not tied to any specific session, it just listen to this topic
         )
         return True

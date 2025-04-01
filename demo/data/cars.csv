@@ -1,0 +1,51 @@
+id,brand,year,price,color,mileage,fuel,model
+1,Tesla,2022,50000,Red,15000,electric,Model 3
+2,Audi,2020,35000,White,25000,gasoline,A4
+3,BMW,2021,45000,Black,30000,diesel,320i
+4,Mercedes,2023,55000,Silver,5000,gasoline,C200
+5,Toyota,2019,22000,Blue,40000,hybrid,Corolla
+6,Ford,2022,28000,Red,20000,gasoline,Focus
+7,Honda,2021,26000,Gray,35000,gasoline,Civic
+8,Chevrolet,2020,30000,White,27000,gasoline,Malibu
+9,Tesla,2024,60000,Blue,1000,electric,Model S
+10,Audi,2023,48000,Black,8000,diesel,Q5
+11,BMW,2019,40000,Silver,45000,gasoline,X3
+12,Mercedes,2021,53000,White,22000,diesel,E200
+13,Toyota,2022,25000,Gray,32000,hybrid,Camry
+14,Ford,2024,31000,Blue,5000,gasoline,Fusion
+15,Honda,2020,24000,Red,38000,gasoline,Accord
+16,Chevrolet,2021,32000,Black,26000,gasoline,Impala
+17,Tesla,2023,58000,White,5000,electric,Model 3
+18,Audi,2019,36000,Silver,30000,gasoline,A6
+19,BMW,2022,47000,Blue,15000,diesel,330i
+20,Mercedes,2024,57000,Red,4000,gasoline,C300
+21,Toyota,2020,23000,Gray,42000,hybrid,Yaris
+22,Ford,2021,29000,Black,18000,gasoline,Fiesta
+23,Honda,2023,27000,White,32000,gasoline,Fit
+24,Chevrolet,2022,31000,Blue,22000,gasoline,Cruze
+25,Tesla,2019,52000,Silver,8000,electric,Model S
+26,Audi,2024,49000,Red,6000,diesel,Q3
+27,BMW,2020,43000,Black,35000,gasoline,320d
+28,Mercedes,2021,54000,White,26000,diesel,E220
+29,Toyota,2023,26000,Gray,30000,hybrid,Prius
+30,Ford,2019,27000,Blue,28000,gasoline,Explorer
+31,Honda,2022,25000,Red,33000,gasoline,Accord
+32,Chevrolet,2024,32000,Black,12000,gasoline,Camaro
+33,Tesla,2021,55000,White,5000,electric,Model 3
+34,Audi,2022,37000,Silver,24000,gasoline,A5
+35,BMW,2023,48000,Blue,15000,diesel,X5
+36,Mercedes,2019,56000,Red,37000,gasoline,S-Class
+37,Toyota,2021,24000,Gray,40000,hybrid,RAV4
+38,Ford,2022,30000,Black,20000,gasoline,Mustang
+39,Honda,2024,28000,White,21000,gasoline,CR-V
+40,Chevrolet,2020,31000,Silver,29000,gasoline,Silverado
+41,Tesla,2022,59000,Red,7000,electric,Model X
+42,Audi,2021,36000,Blue,26000,diesel,A4
+43,BMW,2024,50000,Black,8000,gasoline,X1
+44,Mercedes,2020,55000,White,23000,diesel,C180
+45,Toyota,2019,22000,Blue,41000,hybrid,Tacoma
+46,Ford,2023,32000,Gray,15000,gasoline,Edge
+47,Honda,2020,26000,Red,38000,gasoline,Odyssey
+48,Chevrolet,2022,33000,Silver,27000,gasoline,Equinox
+49,Tesla,2023,61000,Black,4000,electric,Model Y
+50,Audi,2024,48000,White,10000,diesel,Q7

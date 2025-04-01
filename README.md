@@ -1,4 +1,4 @@
-## Autogen: From Zero to Hero
+# Autogen: From Zero to Hero
 
 This repository provides a summary of my study sessions on the [AutoGen](https://microsoft.github.io/autogen/stable/) framework.
 

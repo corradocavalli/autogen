@@ -1,29 +1,29 @@
-## Autogen from zero to hero
+## Autogen: From Zero to Hero
 
-This repository is a summary of my study sessions on the [AutoGen](https://microsoft.github.io/autogen/stable/) framework.
+This repository provides a summary of my study sessions on the [AutoGen](https://microsoft.github.io/autogen/stable/) framework.
 
-It consists of a series of notebooks documenting various experiments conducted while following the official documentation, as well as a small demo project to apply what I’ve learned in a practical way.
+It includes a series of notebooks documenting various experiments conducted while following the official documentation, as well as a small demo project to apply the concepts in a practical scenario.
 
-If you are also interested in AutoGen and looking for a hands-on example, feel free to explore the available resources.
+If you are interested in AutoGen and looking for hands-on examples, feel free to explore the resources provided in this repository.
 
-I hope you find it helpful!
+I hope you find it useful!
 
-## How to setup the repo
+## How to Set Up the Repository
 
-1. This project uses [uv package manager](https://github.com/astral-sh/uv) to handle dependencies, if you don't have yet installed (really? 😮) follow the instructions [here](https://github.com/astral-sh/uv#installation)
-2. Run `uv sync` to create a virtual environment with all the necessary packages.
-3. Activate the environment using `source .venv/bin/activate`
+1. This project uses the [uv package manager](https://github.com/astral-sh/uv) to manage dependencies. If you haven't installed it yet, follow the instructions [here](https://github.com/astral-sh/uv#installation).
+2. Run `uv sync` to create a virtual environment with all the required packages.
+3. Activate the environment using `source .venv/bin/activate`.
 
-## Create the .env file  
+## Create the `.env` File  
 
-Copy the `.env.sample` to `.env` and fill the required info.  
-I have used Azure OpenAI for this repo, but you can easily switch to another LLM by just editing the file `azure.py` inside `model_clients` folder.  
+Copy the `.env.sample` file to `.env` and fill in the required information.  
+This repository uses Azure OpenAI, but you can easily switch to another LLM by editing the `azure.py` file inside the `model_clients` folder.  
 
-Have a look at [this page](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/models.html) for the list models supported by AutoGen.
+Refer to [this page](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/models.html) for a list of models supported by AutoGen.
 
-## Notebook
-The `notebook`folder contains a series of notebook with some little examples mostly taken from official Autogen documentation.
+## Notebooks
+The `notebook` folder contains a series of notebooks with small examples, primarily derived from the official AutoGen documentation.
 
 ## Demo
-See the [readme](demo/readme.md) for more info about this example that uses AutoGen to simulate a virtual car dealer.
+See the [README](demo/readme.md) for more information about this example, which uses AutoGen to simulate a virtual car dealership.
 

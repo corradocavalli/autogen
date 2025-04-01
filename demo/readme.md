@@ -47,7 +47,7 @@ If you want, after some tests, start from scratch, just delete the `data/cars.db
 ### Architecture
 ![alt text](images/architecture.png)
 
-The solution is made up of 5 agents  
+The solution is made up of 5 agents:  
 
 - **User Agent**: Is the agent in charge of welcoming the user and handling all the requests typed by the user.
 - **Triage Agent**: Handles the request coming from the User Agent and the other agents and, depending on the contents forwards them to the proper agent or back to the user agent if not pertinent.

@@ -25,5 +25,5 @@ Have a look at [this page](https://microsoft.github.io/autogen/stable/user-guide
 The `notebook`folder contains a series of notebook with some little examples mostly taken from official Autogen documentation.
 
 ## Demo
-See the [readme](demo/README.md) for more info about this example that uses AutoGen to simulate a virtual car dealer.
+See the [readme](demo/readme.md) for more info about this example that uses AutoGen to simulate a virtual car dealer.
 

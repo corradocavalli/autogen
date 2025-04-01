@@ -22,7 +22,7 @@ class UserTerminationHandler(DefaultInterventionHandler):
     async def on_response(
         self, message: Any, *, sender: AgentId, recipient: AgentId | None
     ) -> Any | type[DropMessage]:
-        return UserTerminationMessage()
+        return message if message is not None else UserTerminationHandler()
 
     @property
     def termination_value(self) -> UserTerminationMessage | None:

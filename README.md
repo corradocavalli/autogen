@@ -11,13 +11,15 @@ I hope you find it helpful!
 ## How to setup the repo
 
 1. This project uses [uv package manager](https://github.com/astral-sh/uv) to handle dependencies, if you don't have yet installed (really? 😮) follow the instructions [here](https://github.com/astral-sh/uv#installation)
-2. Run 'uv sync' to create a virtual environment with all the necessary packages.
+2. Run `uv sync` to create a virtual environment with all the necessary packages.
 3. Activate the environment using `source .venv/bin/activate`
 
 ## Create the .env file  
 
-Copy the `.env.sample` to `.env` and fill the required info.
-I have used Azure OpenAI for this repo, but you can easily flip to another LLM by just editing the file `azure.py` inside `model_clients` folder.
+Copy the `.env.sample` to `.env` and fill the required info.  
+I have used Azure OpenAI for this repo, but you can easily switch to another LLM by just editing the file `azure.py` inside `model_clients` folder.  
+
+Have a look at [this page](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/models.html) for the list models supported by AutoGen.
 
 ## Notebook
 The `notebook`folder contains a series of notebook with some little examples mostly taken from official Autogen documentation.

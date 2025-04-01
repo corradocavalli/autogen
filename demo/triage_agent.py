@@ -1,13 +1,16 @@
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.base import Handoff
 from autogen_agentchat.messages import HandoffMessage, TextMessage
-from autogen_core import AgentId, MessageContext, RoutedAgent, TopicId, message_handler
+from autogen_core import AgentId, MessageContext, RoutedAgent, message_handler
 from autogen_core.models import ChatCompletionClient
-from messages import OrderUpdateMessage, TriageMessage, UserMessage
+from messages import TriageMessage, UserMessage
 from utils import print_core, print_route
 
 
 class TriageAgent(RoutedAgent):
+    """
+    Triage agent that specializes in handling user requests and forwarding them to the appropriate agent.
+    """
 
     def __init__(self, model_client: ChatCompletionClient) -> None:
         super().__init__(
@@ -16,6 +19,7 @@ class TriageAgent(RoutedAgent):
 
         print_core(f"Agent ({self.id}) initialized")
 
+        # We rely on the AssistantAgent to handle the triage process since it offers a nice handoff mechanism.
         self._agent = AssistantAgent(
             name="triage_agent",
             model_client=model_client,
@@ -44,36 +48,39 @@ class TriageAgent(RoutedAgent):
     @message_handler()
     async def handle_request(self, message: UserMessage, ctx: MessageContext) -> None:
         print_route(ctx.sender, self.id, message.content)
+        """
+        Handles the request from the User Agent and uses the internal assistant to decide how to handle it.
+        """
 
         response = await self._agent.on_messages(
             [TextMessage(content=message.content, source="user")],
             ctx.cancellation_token,
         )
 
-        # print(
-        #     f"[bold gray]({ctx.sender})[/bold gray]->[bold yellow]({self.id}) Received: {response}[/bold yellow]"
-        # )
-
         # If agent request handoff, forwards the message to the target agent
         if isinstance(response.chat_message, HandoffMessage):
             match response.chat_message.target:
+                # The user probably want to ask about a car or needs some advising
                 case "advisor_agent":
-                    await self.send_message(
+                    response = await self.send_message(
                         TriageMessage(content=message.content),
                         AgentId(response.chat_message.target, self.id.key),
                     )
+                # The user probably wants to cancel an order or ask about an existing order
                 case "sales_agent":
                     await self.send_message(
                         UserMessage(content=message.content),
                         AgentId(response.chat_message.target, self.id.key),
                     )
                 case _:
+                    # The user probably has provided a question that is not relevant.
                     await self.send_message(
                         TriageMessage(content=response.chat_message.content),
                         AgentId(response.chat_message.target, self.id.key),
                     )
         else:
-            # If agent does not request handoff, send the response to the user
+            # In case the agent does not request handoff, send the response back to user agent
+            # to let the user agent continue the conversation
             await self.send_message(
                 TriageMessage(content=response.chat_message.content),
                 AgentId("user_agent", self.id.key),

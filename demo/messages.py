@@ -29,7 +29,6 @@ class OrderMessage:
 @dataclass
 class OrderUpdateMessage:
     order_id: int
-    status: str
 
 
 # This message is used to inform the runtime that the user has finished the conversation

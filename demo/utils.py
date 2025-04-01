@@ -27,3 +27,9 @@ def print_route(sender: str, receiver, message: str):
     print(
         f"[bold green italic]({sender}->{receiver}):[/bold green italic] [orange]{message}[/orange]"
     )
+
+
+def print_notification(sender: str, receiver: str, message: str):
+    print(
+        f"[bold green italic]({sender}->{receiver}):[/bold green italic] [bold yellow]{message}[/bold yellow]"
+    )

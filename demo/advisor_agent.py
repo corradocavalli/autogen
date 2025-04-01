@@ -6,13 +6,14 @@ from autogen_core.models import ChatCompletionClient
 from datastore import CarIdCache
 from messages import AdvisorMessage, TriageMessage, UserMessage
 from tools import Tools
-from typing_extensions import Annotated
 from utils import print_core, print_route
 
 
 class AdvisorAgent(RoutedAgent):
-
-    pending_handfoffs = {}
+    """
+    Advisor agent that specializes in helping users select the right car.
+    It uses a set of tools to perform operations such as retrieving available cars and caching car IDs.
+    """
 
     def __init__(self, model_client: ChatCompletionClient) -> None:
         super().__init__(
@@ -63,7 +64,7 @@ class AdvisorAgent(RoutedAgent):
                 ),
                 Handoff(
                     target="sales_agent",
-                    description="Use it when the user provides a question that is related to ordering the car in discussion or when conversation turns into requesting info about existing orders. Be sure only one car is discussed and the cache_carId tool has been used.",
+                    description="Use it when the user provides a question that is related to ordering the car in discussion or when the user has any question about orders. Be sure only one car is discussed and the cache_carId tool has been used.",
                     message="The user is interested in the car with car_id= {car_id}, find all the car details and then proceed with the order.",
                 ),
             ],
@@ -73,6 +74,9 @@ class AdvisorAgent(RoutedAgent):
     async def handle_request(
         self, message: TriageMessage | UserMessage, ctx: MessageContext
     ) -> None:
+        """
+        Handles the request from the triage agent or user and forwards it to the advisor agent for processing.
+        """
 
         print_route(ctx.sender, self.id, message.content)
 
@@ -84,11 +88,19 @@ class AdvisorAgent(RoutedAgent):
         if isinstance(response.chat_message, HandoffMessage):
             match response.chat_message.target:
                 case "sales_agent":
-                    order_agent_instructions = response.chat_message.content.format(
-                        car_id=CarIdCache.cache.pop(
-                            str(self.id), -1
-                        )  # not very safe, but for demo purposes
-                    )
+                    car_id = CarIdCache.cache.pop(
+                        str(self.id), -1
+                    )  # not very safe, but ok to keep it simple for the demo
+
+                    # if car_is is -1 means that handoff is not related to a car
+                    # order, so we assume that the user is interested in orders.
+                    # Again, there are better ways to do this.
+                    if car_id == -1:
+                        order_agent_instructions = message.content
+                    else:
+                        order_agent_instructions = response.chat_message.content.format(
+                            car_id=car_id
+                        )
 
                     await self.send_message(
                         AdvisorMessage(content=order_agent_instructions),

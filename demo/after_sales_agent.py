@@ -4,11 +4,16 @@ from autogen_core import MessageContext, RoutedAgent, message_handler, type_subs
 from autogen_core.models import ChatCompletionClient
 from messages import OrderUpdateMessage
 from tools import Tools
-from utils import print_assistant, print_core, print_route
+from utils import print_core, print_notification, print_route
 
 
 @type_subscription(topic_type="order_update")
 class AfterSalesAgent(RoutedAgent):
+    """
+    After-sales agent that specializes in handling after-sales operations.
+    It uses a set of tools to perform operations such as looking up orders.
+    This agent shows an example of how to use broadcasting messages to multiple agents.
+    """
 
     def __init__(self, model_client: ChatCompletionClient) -> None:
         super().__init__(
@@ -32,7 +37,7 @@ class AfterSalesAgent(RoutedAgent):
             We'd like to inform you that your order '<order_id>' placed on <order_date> for the car <car_brand> <car_model> has been updated to '<status>'.
 
             Best regards,
-            Customer Service Team
+            CardDream Service Team
             """,
             reflect_on_tool_use=True,
         )
@@ -42,8 +47,11 @@ class AfterSalesAgent(RoutedAgent):
     async def handle_topic(
         self, message: OrderUpdateMessage, ctx: MessageContext
     ) -> None:
+        """
+        Handles the order update message and forwards it to the after-sales agent.
+        """
 
-        print_route(ctx.sender, self.id, f"{message.order_id}-{message.status}")
+        print_route(ctx.sender, self.id, message.order_id)
 
         query = f"The following order has been updated: {message.order_id}"
         response = await self._agent.on_messages(
@@ -51,4 +59,10 @@ class AfterSalesAgent(RoutedAgent):
             ctx.cancellation_token,
         )
 
-        print_assistant(ctx.sender, self.id, f"email:\n{response.chat_message.content}")
+        # we just print the response here, but in a real scenario we would send it to the customer
+        # using the email service.
+        print_notification(
+            ctx.sender,
+            self.id,
+            f"Sending notification...\n{response.chat_message.content}",
+        )

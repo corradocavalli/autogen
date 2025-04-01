@@ -9,6 +9,10 @@ from utils import print_core, print_route
 
 
 class SalesAgent(RoutedAgent):
+    """
+    Sales agent that specializes in handling user requests related to car orders.
+    It uses a set of tools to perform operations such as creating, deleting, and retrieving orders.
+    """
 
     def __init__(self, model_client: ChatCompletionClient) -> None:
         super().__init__(
@@ -26,7 +30,7 @@ class SalesAgent(RoutedAgent):
                 Tools.delete_order,
                 Tools.get_order,
                 Tools.get_orders,
-                Tools.create_status_notification,
+                Tools.inform_after_sales_department,
             ],
             system_message=f""""
             You are a specialized assistant responsible for handling conversations related to car orders.
@@ -42,21 +46,31 @@ class SalesAgent(RoutedAgent):
             Before creating the order, ask the user for a confirmation of the order details and ask to confirm by typing "yes" or "no".
             If the user confirms, proceed with the order creation.
             If the user does not confirm, ask them if they would like to provide any additional information or cancel the order.
-            After an order is created, ensure that a status notification is also created.
-
+            After successfully creating the order, you must invoke the tool `inform_after_sales_department` with the following details:
+            - order id (as returned from the create_order tool)
+                        
             Deleting an Order:
 
             Before proceeding with a deletion, always ask the user for a final confirmation.
             Ensure that the user explicitly confirms that they want to delete the order. 
-            After an order is deleted, ensure that a status notification is also created.                    
-
+            After successfully deleting the order, you must invoke the tool `inform_after_sales_department` with the following details:
+            - order id
+            
             Asking About Existing Orders:
 
             Request the customer name to fetch and display any existing orders related to that customer.
 
             Retrieving the List of Places Order:
 
-            Ask for the customer's name in order to provide the list of places where orders have been made.            
+            Ask for the customer's name in order to provide the list of places where orders have been made.     
+
+            Informing the After Sales Department:
+
+            Required Information:
+            - order id
+            - order status
+
+            Each time a new order is created or an order is deleted, you must invoke the tool `inform_after_sales_department` to notify the after-sales department about the order status change.      
 
             Additional Guidelines:
 
@@ -68,18 +82,17 @@ class SalesAgent(RoutedAgent):
             If you encounter any issues, need further clarification, or require assistance, feel free to request a handoff to the proper agent.
             Kindly deny any requests that are not related to car orders or the tasks mentioned above.
             If the user is not interested in continuing the conversation, please use the handoff tool to transfer the conversation to the user agent.
-
-            IMPORTANT: After each order creation or deletetion inform the user a notification has been sent to their email by checking the returned value of the 'inform_user_about_order_status' tool.
+            
             """,
             reflect_on_tool_use=True,
             handoffs=[
                 Handoff(
-                    target="user_agent",
-                    description="Use it when the user no longer needs assistance, the request has been resolved, or the user is not interested in continuing the conversation.",
+                    target="triage_agent",
+                    description="Use it when the user no longer needs assistance, the request has been resolved, the question is not relevant to an order or the user is not interested in continuing the conversation.",
                 ),
                 Handoff(
                     target="advisor_agent",
-                    description="Use it when the user generates a question that might require advising or information about a specific car or just need additional help in selecting a car.",
+                    description="Use it when the user has question that is related to car advising or the user wishes some advising regarding ordering or considering a car like a car model or brand or seeing the available cars.",
                 ),
             ],
         )
@@ -96,19 +109,22 @@ class SalesAgent(RoutedAgent):
         )
 
         if isinstance(response.chat_message, HandoffMessage):
+            print_core(
+                f"Agent ({self.id}) requested handoff to {response.chat_message.target}"
+            )
             match response.chat_message.target:
+                case "triage_agent":
+                    await self.send_message(
+                        UserMessage(content=message.content),
+                        AgentId(response.chat_message.target, self.id.key),
+                    )
                 case "advisor_agent":
                     await self.send_message(
                         TriageMessage(content=message.content),
                         AgentId(response.chat_message.target, self.id.key),
                     )
-                case _:
-                    await self.send_message(
-                        TriageMessage(content=response.chat_message.content),
-                        AgentId(response.chat_message.target, self.id.key),
-                    )
         else:
-            # If agent does not request handoff, send the response to the user
+            # If agent does not request handoff, send the request to the user agent
             await self.send_message(
                 OrderMessage(content=response.chat_message.content),
                 AgentId("user_agent", self.id.key),

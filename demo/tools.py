@@ -1,3 +1,4 @@
+import random
 from typing import List
 
 from autogen_core import SingleThreadedAgentRuntime, TopicId
@@ -151,7 +152,7 @@ class Tools:
             return "An error occurred while retrieving customer's orders"
 
     @staticmethod
-    async def create_status_notification(
+    async def inform_after_sales_department(
         order_id: Annotated[
             str,
             "The id of the order to notify about",
@@ -161,19 +162,17 @@ class Tools:
             "The status of the order to notify about",
         ],
     ) -> Annotated[
-        bool, "True when notification was successfully created, false otherwise"
+        int | None,
+        "The notification id, or None if the notification could not be created",
     ]:
-        """Use this tool to create a status notification when an order is created or deleted"""
+        """Use this tool to notifiy the after sales department about an order status change"""
 
         print_tool("create_status_notification", f"{order_id}-{status}")
 
         await Tools.runtime.publish_message(
-            OrderUpdateMessage(
-                order_id=order_id,
-                status=status,
-            ),
+            OrderUpdateMessage(order_id=order_id),
             topic_id=TopicId(
                 type="order_update", source="default"
             ),  # the after_sales is not tied to any specific session, it just listen to this topic
         )
-        return True
+        return random.randint(1, 1000)  # Simulate a notification id

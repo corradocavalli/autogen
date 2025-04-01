@@ -34,10 +34,20 @@ class Order:
 # Represents a temporary cache for car IDs that the Advisor agent uses to get the id of the car the user wishes to buy.
 # A better approach could be to use a database, and pass the session id to the order agent instead of the car id in the prompt.
 class CarIdCache:
+    """
+    Represents a temporary cache for car IDs that the Advisor agent uses to get the id of the car the user wishes to buy.
+    # A better approach could be to use a database, and pass the session id to the order agent instead of the car id in the cache.
+    """
+
     cache: dict = {}
 
 
 class CarDB:
+    """
+    A class to manage the car database using SQLite.
+    It provides methods to create, read, update, and delete car and order records.
+    """
+
     def __init__(self, db_name: str = "data/cars.db"):
         self.conn = sqlite3.connect(db_name)
         self.conn.row_factory = sqlite3.Row
@@ -77,7 +87,6 @@ class CarDB:
         """
         self.conn.execute(create_cars_table_sql)
 
-        # Create Orders table
         create_orders_table_sql = """
         CREATE TABLE IF NOT EXISTS Orders (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,20 +118,17 @@ class CarDB:
         date = datetime.date.today().isoformat()
         status = "order created"
 
-        # Insert the order into the database
         cursor = self.conn.execute(
             """
             INSERT INTO Orders (car_id, customer_name, customer_email, date, status, is_available)
             VALUES (?, ?, ?, ?, ?, ?);
             """,
-            (car_id, customer_name, customer_email, date, status, True),
+            (car_id, customer_name.lower(), customer_email.lower(), date, status, True),
         )
 
-        # Set the car as unavailable
         self.conn.execute("UPDATE Cars SET is_available = 0 WHERE id = ?;", (car_id,))
         self.conn.commit()
 
-        # Return the created Order object
         return Order(
             id=cursor.lastrowid,
             car=car,
@@ -154,11 +160,9 @@ class CarDB:
         row = cursor.fetchone()
         if row:
             car_id = row["car_id"]
-            # Set the car as available
             self.conn.execute(
                 "UPDATE Cars SET is_available = 1 WHERE id = ?;", (car_id,)
             )
-            # Mark the order as unavailable and update its status to 'Deleted'
             self.conn.execute(
                 "UPDATE Orders SET is_available = 0, status = 'Deleted' WHERE id = ?;",
                 (order_id,),
@@ -176,7 +180,7 @@ class CarDB:
             JOIN Cars c ON o.car_id = c.id
             WHERE o.customer_name = ? AND o.is_available = 1;
             """,
-            (customer_name,),
+            (customer_name.lower(),),
         )
         rows = cursor.fetchall()
         return [
@@ -251,7 +255,6 @@ class CarDB:
             reader = csv.DictReader(f)
             cars = []
             for row in reader:
-                # Convert values to appropriate types if necessary
                 car = (
                     int(row["id"]),
                     row["brand"],

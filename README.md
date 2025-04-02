@@ -18,7 +18,7 @@ I hope you find it useful!
 
 Copy the `.env.sample` file to `.env` and fill in the required information.  
 
-## Choosing the target LLM
+## Choosing model client
 
 This repository uses Azure OpenAI, but you can easily switch to another LLM by editing the [azure.py](model_clients/azure.py) file inside the `model_clients` folder.  
 

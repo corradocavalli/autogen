@@ -17,7 +17,10 @@ I hope you find it useful!
 ## Create the `.env` File  
 
 Copy the `.env.sample` file to `.env` and fill in the required information.  
-This repository uses Azure OpenAI, but you can easily switch to another LLM by editing the `azure.py` file inside the `model_clients` folder.  
+
+## Choosing the target LLM
+
+This repository uses Azure OpenAI, but you can easily switch to another LLM by editing the [azure.py](model_clients/azure.py) file inside the `model_clients` folder.  
 
 Refer to [this page](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/models.html) for a list of models supported by AutoGen.
 

@@ -25,7 +25,7 @@ This repository uses Azure OpenAI, but you can easily switch to another LLM by e
 Refer to [this page](https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/models.html) for a list of models supported by AutoGen.
 
 ## Notebooks
-The `notebook` folder contains a series of notebooks with small examples, primarily derived from the official AutoGen documentation.
+The [notebook](notebook) folder contains a series of notebooks with small examples, primarily derived from the official AutoGen documentation.
 
 ## Demo
 See the [README](demo/readme.md) for more information about this example, which uses AutoGen to simulate a virtual car dealership.

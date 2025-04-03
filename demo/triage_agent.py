@@ -51,6 +51,8 @@ class TriageAgent(RoutedAgent):
         """
         Handles the request from the User Agent and uses the internal assistant to decide how to handle it.
         """
+        # We reset the assistant agent to remove any previous context.
+        await self._agent.on_reset(ctx.cancellation_token)
 
         response = await self._agent.on_messages(
             [TextMessage(content=message.content, source="user")],
